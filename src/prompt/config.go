@@ -6,6 +6,9 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/git-town/git-town/src/git"
+
+	"bytes"
+	"os/exec"
 )
 
 // EnsureIsConfigured has the user to confgure the main branch and perennial branches if needed.
@@ -62,6 +65,13 @@ func ConfigurePerennialBranches(repo *git.ProdRepo) error {
 // Helpers
 
 func getMainBranchPrompt(repo *git.ProdRepo) (result string) {
+	cmd := exec.Command("git", "config", "--local", "init.defaultBranch")
+	if err := cmd.Run(); err != nil {
+		var out bytes.Buffer
+		cmd.Stdout = &out
+		result += out.String()
+		return
+	}
 	result += "Please specify the main development branch:"
 	currentMainBranch := repo.Config.GetMainBranch()
 	if currentMainBranch != "" {
